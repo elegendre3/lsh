@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -8,7 +10,7 @@ import matplotlib.pyplot as plt
 
 D = 2    # dim
 N = 8  # data points
-K = 10   # hash functions
+K = 20   # hash functions
 L = 2    # hash tables
 
 docs = (np.random.rand(N, D) - 0.5) * 2
@@ -36,3 +38,23 @@ for i in range(len(hash_functions)):
 
 print()
 print(hash_tables)
+
+
+def find_duplicates(doc: List[float]):
+    collisions = []
+    for i in range(len(hash_functions)):
+        hash_table = hash_tables[i]
+        table_functions = hash_functions[i]
+        doc_bits = ''.join(['1' if x > 0 else '0' for x in np.dot(table_functions, doc)])
+        collisions.extend(hash_table[doc_bits])
+    potential_dupes = set(collisions)
+    distances = {}
+    for potential_dupe in potential_dupes:
+        distance = np.sqrt(np.mean([np.square(x) for x in docs[potential_dupe]]))
+        distances[potential_dupe] = {'distance': distance, 'doc': docs[potential_dupe]}
+    return distances
+
+
+dupes = find_duplicates(docs[9])
+print()
+print(dupes)

@@ -2,6 +2,8 @@ from typing import List
 
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.spatial.distance import euclidean
+
 
 # D = 2    # dim
 # N = 100  # data points
@@ -10,14 +12,14 @@ import matplotlib.pyplot as plt
 
 D = 2    # dim
 N = 8  # data points
-K = 20   # hash functions
+K = 10   # hash functions
 L = 2    # hash tables
 
 docs = (np.random.rand(N, D) - 0.5) * 2
 docs = np.append(docs, [[1, 1], [1, 0.99]], axis=0)
 print(docs)
-plot = plt.scatter([xx[0] for xx in docs], [xx[1] for xx in docs])
-plt.show()
+# plot = plt.scatter([xx[0] for xx in docs], [xx[1] for xx in docs])
+# plt.show()
 
 hash_functions = (np.random.rand(L, K, D) - 0.5) * 2
 
@@ -40,7 +42,7 @@ print()
 print(hash_tables)
 
 
-def find_duplicates(doc: List[float]):
+def find_duplicates(doc: List[float], distance_threshold: float = 0.1):
     collisions = []
     for i in range(len(hash_functions)):
         hash_table = hash_tables[i]
@@ -50,11 +52,13 @@ def find_duplicates(doc: List[float]):
     potential_dupes = set(collisions)
     distances = {}
     for potential_dupe in potential_dupes:
-        distance = np.sqrt(np.mean([np.square(x) for x in docs[potential_dupe]]))
-        distances[potential_dupe] = {'distance': distance, 'doc': docs[potential_dupe]}
+        distance = euclidean(doc, docs[potential_dupe])
+        print(distance)
+        if distance < distance_threshold:
+            distances[potential_dupe] = {'distance': distance, 'doc': docs[potential_dupe]}
     return distances
 
 
-dupes = find_duplicates(docs[9])
+dupes = find_duplicates(docs[9], 0.2)
 print()
 print(dupes)
